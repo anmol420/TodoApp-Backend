@@ -1,0 +1,29 @@
+{
+  "name": "todoapp-backend",
+  "version": "1.0.0",
+  "description": "A Backend Written In JavaScript For The Working Of TodoApp.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anmol420/TodoApp-Backend.git"
+  },
+  "keywords": [
+    "todo",
+    "backend",
+    "node",
+    "js",
+    "mongodb"
+  ],
+  "author": "anmol420",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anmol420/TodoApp-Backend/issues"
+  },
+  "homepage": "https://github.com/anmol420/TodoApp-Backend#readme",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
