@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A Backend Written In JavaScript For The Working Of TodoApp.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js"
   },
@@ -24,6 +25,11 @@
   },
   "homepage": "https://github.com/anmol420/TodoApp-Backend#readme",
   "dependencies": {
-    "express": "^4.21.0"
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.6.4",
+    "mongoose-aggregate-paginate-v2": "^1.1.2"
   }
 }
