@@ -22,6 +22,6 @@ app.use(`${ROUTE_PATH}`, healthCheckRoute);
 
 // user routes
 import userRoute from "./routes/user.routes.js";
-app.use(`${ROUTE_PATH}`, userRoute);
+app.use(`${ROUTE_PATH}/user`, userRoute);
 
 export default app;
