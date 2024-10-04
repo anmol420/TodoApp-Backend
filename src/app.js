@@ -1,6 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { ROUTE_PATH } from "./constants.js";
 
 const app = express();
 
@@ -15,8 +16,8 @@ app.use(express.json({
 
 app.use(cookieParser());
 
-app.get("/", (req, res) => {
-    res.send("Hello!!")
-});
+// health check route
+import healthCheckRoute from "./routes/healthCheck.routes.js";
+app.use(`${ROUTE_PATH}`, healthCheckRoute);
 
 export default app;
