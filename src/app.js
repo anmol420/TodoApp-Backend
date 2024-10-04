@@ -20,4 +20,8 @@ app.use(cookieParser());
 import healthCheckRoute from "./routes/healthCheck.routes.js";
 app.use(`${ROUTE_PATH}`, healthCheckRoute);
 
+// user routes
+import userRoute from "./routes/user.routes.js";
+app.use(`${ROUTE_PATH}`, userRoute);
+
 export default app;
