@@ -11,7 +11,7 @@ const validationSchema = (schema, source="body") => {
                 const zError = error.format();
                 return res
                     .status(404)
-                    .json(new ApiError(404, zError, "Validation Error"));
+                    .json(new ApiError(404, { zError }, "Validation Error"));
             }
         }
     }
