@@ -2,15 +2,10 @@ import { User } from "../models/user.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import { userValidator } from "../utils/zodValidator.js";
 import { COOKIE_OPTIONS } from "../constants.js";
 
 const registerUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
-
-    if (!userValidator({ username, email, password })) {
-        throw new ApiError(400, "Validation Error");
-    }
 
     const existedUser = await User.findOne({
         $or: [{ username }, { email }],
