@@ -92,11 +92,24 @@ const logOutUser = asyncHandler( async (req, res) => {
 });
 
 const dashboard = asyncHandler( async (req, res, next) => {
-    
+    const user = req.user;
+    if (!user) {
+        throw new ApiError(404, "User Not Found.");
+    }
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                user,
+                "User Data Found!",
+            ),
+        );
 });
 
 export {
     registerUser,
     logInUser,
     logOutUser,
+    dashboard,
 };
