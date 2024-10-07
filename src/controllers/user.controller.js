@@ -78,7 +78,25 @@ const logInUser = asyncHandler( async (req, res) => {
         );
 });
 
+const logOutUser = asyncHandler( async (req, res) => {
+    return res
+        .status(200)
+        .clearCookie("token", COOKIE_OPTIONS)
+        .json(
+            new ApiResponse(
+                200,
+                {},
+                "User Logged Out."
+            ),
+        );
+});
+
+const dashboard = asyncHandler( async (req, res, next) => {
+    
+});
+
 export {
     registerUser,
-    logInUser
+    logInUser,
+    logOutUser,
 };
