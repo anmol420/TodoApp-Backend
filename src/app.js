@@ -24,4 +24,8 @@ app.use(`${ROUTE_PATH}`, healthCheckRoute);
 import userRoute from "./routes/user.routes.js";
 app.use(`${ROUTE_PATH}/user`, userRoute);
 
+// todo routes
+import todoRoute from "./routes/todo.routes.js";
+app.use(`${ROUTE_PATH}/todo`, todoRoute);
+
 export default app;
