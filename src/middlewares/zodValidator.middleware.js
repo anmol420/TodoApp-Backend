@@ -1,5 +1,5 @@
 import { z } from "zod";
-import ApiError from "../utils/ApiError.js";
+import ApiResponse from "../utils/ApiResponse.js";
 
 const validationSchema = (schema, source="body") => {
     function validate(req, res, next) {
@@ -11,7 +11,7 @@ const validationSchema = (schema, source="body") => {
                 const zError = error.format();
                 return res
                     .status(404)
-                    .json(new ApiError(404, { zError }, "Validation Error"));
+                    .json(new ApiResponse(404, { zError }, "Validation Error"));
             }
         }
     }
