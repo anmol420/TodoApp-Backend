@@ -60,7 +60,7 @@ const toggleComplete = asyncHandler(async (req, res) => {
             .json(new ApiResponse(
                 200,
                 updatedTodo,
-                "OK"
+                "Status Changed"
             ));
     } catch (error) {
         throw new ApiError(500, error.message || "Internal Server Error");
