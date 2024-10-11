@@ -2,7 +2,6 @@
     "builds": [
         {
             "src": "src",
-            "useBuilds": true,
             "output": "build"
         }
     ]
