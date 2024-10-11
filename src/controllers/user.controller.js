@@ -7,33 +7,37 @@ import { COOKIE_OPTIONS } from "../constants.js";
 const registerUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
 
-    const existedUser = await User.findOne({
-        $or: [{ username }, { email }],
-    });
-    if (existedUser) {
-        throw new ApiError(400, "User Already Exists");
+    try {
+        const existedUser = await User.findOne({
+            $or: [{ username }, { email }],
+        });
+        if (existedUser) {
+            throw new ApiError(400, "User Already Exists");
+        }
+
+        const user = await User.create({
+            username: username,
+            email: email,
+            password: password,
+        });
+
+        const createdUser = await User.findOne(user._id).select("-password");
+        if (!createdUser) {
+            throw new ApiError(500, "Internal Server Error");
+        }
+
+        return res
+            .status(201)
+            .json(
+                new ApiResponse(
+                    201,
+                    createdUser,
+                    "User Created.",
+                ),
+            );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Internal Server Error.");
     }
-
-    const user = await User.create({
-        username: username,
-        email: email,
-        password: password,
-    });
-
-    const createdUser = await User.findOne(user._id).select("-password");
-    if (!createdUser) {
-        throw new ApiError(500, "Internal Server Error");
-    }
-
-    return res
-        .status(201)
-        .json(
-            new ApiResponse(
-                201,
-                createdUser,
-                "User Created.",
-            ),
-        );
 });
 
 const generateToken = async (userId) => {
@@ -46,52 +50,57 @@ const generateToken = async (userId) => {
     }
 }
 
-const logInUser = asyncHandler( async (req, res) => {
+const logInUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-    if (!(email && password)) {
-        throw new ApiError(400, "Email & Password Are Required.");
+
+    try {
+        const userFound = await User.findOne({ email });
+        if (!userFound) {
+            throw new ApiError(404, "User Not Found.");
+        }
+
+        const passwordValid = await userFound.isPasswordCorrect(password);
+        if (!passwordValid) {
+            throw new ApiError(404, "Invalid Password.");
+        }
+
+        const token = await generateToken(userFound._id);
+
+        const user = await User.findById(userFound._id).select("-password");
+
+        return res
+            .status(200)
+            .cookie("token", token, COOKIE_OPTIONS)
+            .json(
+                new ApiResponse(
+                    200,
+                    user,
+                    "User Logged In.",
+                ),
+            );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Internal Server Error.");
     }
-
-    const userFound = await User.findOne({ email });
-    if (!userFound) {
-        throw new ApiError(404, "User Not Found.");
-    }
-
-    const passwordValid = await userFound.isPasswordCorrect(password);
-    if (!passwordValid) {
-        throw new ApiError(404, "Invalid Password.");
-    }
-
-    const token = await generateToken(userFound._id);
-
-    const user = await User.findById(userFound._id).select("-password");
-
-    return res
-        .status(200)
-        .cookie("token", token, COOKIE_OPTIONS)
-        .json(
-            new ApiResponse(
-                200,
-                user,
-                "User Logged In.",
-            ),
-        );
 });
 
-const logOutUser = asyncHandler( async (req, res) => {
-    return res
-        .status(200)
-        .clearCookie("token", COOKIE_OPTIONS)
-        .json(
-            new ApiResponse(
-                200,
-                {},
-                "User Logged Out."
-            ),
-        );
+const logOutUser = asyncHandler(async (req, res) => {
+    try {
+        return res
+            .status(200)
+            .clearCookie("token", COOKIE_OPTIONS)
+            .json(
+                new ApiResponse(
+                    200,
+                    {},
+                    "User Logged Out."
+                ),
+            );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Internal Server Error.");
+    }
 });
 
-const dashboard = asyncHandler( async (req, res) => {
+const dashboard = asyncHandler(async (req, res) => {
     const user = req.user;
     try {
         const userData = await User.aggregate([
@@ -123,10 +132,9 @@ const dashboard = asyncHandler( async (req, res) => {
         ]);
 
         if (!userData?.length) {
-            throw new ApiError("")
+            throw new ApiError(404, "Not Found.");
         }
 
-        console.log(userData[0].todos[0]);
         return res
             .status(200)
             .json(
@@ -137,7 +145,71 @@ const dashboard = asyncHandler( async (req, res) => {
                 ),
             );
     } catch (error) {
-        throw new ApiError(500, "Internal Server Error.");
+        throw new ApiError(500, error.message || "Internal Server Error.");
+    }
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+    const { email, oldPassword, newPassword } = req.body;
+
+    try {
+        const userFound = await User.findOne({
+            $or: [{ email }]
+        });
+        if (!userFound) {
+            throw new ApiError(404, "User Not Found.");
+        }
+
+        const isPasswordValid = await userFound.isPasswordCorrect(oldPassword);
+        if (!isPasswordValid) {
+            throw new ApiError(401, "Old Password Invalid.")
+        }
+
+        userFound.password = newPassword;
+        await userFound.save({
+            validateBeforeSave: false,
+        });
+
+        return res
+            .status(201)
+            .json(
+                new ApiResponse(
+                    201,
+                    {},
+                    "Passsword Updated Successfully."
+                )
+            );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Internal Server Error");
+    }
+});
+
+const updateUserDetails = asyncHandler(async (req, res) => {
+    const { username, email } = req.body;
+    const user = req.user;
+    try {
+        const userFound = await User.findByIdAndUpdate({
+            _id: user._id,
+        }, {
+            $set: {
+                username,
+                email
+            },
+        }, {
+            new: true,
+        }).select("-password");
+
+        return res
+            .status(201)
+            .json(
+                new ApiResponse(
+                    201,
+                    userFound,
+                    "User Details Updated."
+                ),
+            );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Internal Server Error");
     }
 });
 
@@ -146,4 +218,6 @@ export {
     logInUser,
     logOutUser,
     dashboard,
+    resetPassword,
+    updateUserDetails,
 };
