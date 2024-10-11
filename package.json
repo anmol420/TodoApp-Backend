@@ -2,12 +2,11 @@
   "name": "todoapp-backend",
   "version": "1.0.0",
   "description": "A Backend Written In JavaScript For The Working Of TodoApp.",
-  "main": "index.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "build": "rm -rf build && mkdir build && cp -r src/* build/",
-    "start": "node build/index.js"
+    "start": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
