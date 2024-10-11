@@ -91,20 +91,54 @@ const logOutUser = asyncHandler( async (req, res) => {
         );
 });
 
-const dashboard = asyncHandler( async (req, res, next) => {
+const dashboard = asyncHandler( async (req, res) => {
     const user = req.user;
-    if (!user) {
-        throw new ApiError(404, "User Not Found.");
+    try {
+        const userData = await User.aggregate([
+            {
+                $match: {
+                    _id: user._id,
+                },
+            },
+            {
+                $lookup: {
+                    from: "todos",
+                    localField: "_id",
+                    foreignField: "owner",
+                    as: "todos"
+                },
+            },
+            {
+                $project: {
+                    username: 1,
+                    email: 1,
+                    todos: {
+                        title: 1,
+                        description: 1,
+                        dateModified: 1,
+                        isCompleted: 1,
+                    },
+                },
+            },
+        ]);
+
+        if (!userData?.length) {
+            throw new ApiError("")
+        }
+
+        console.log(userData[0].todos[0]);
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    userData,
+                    "User Data Found!",
+                ),
+            );
+    } catch (error) {
+        throw new ApiError(500, "Internal Server Error.");
     }
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(
-                200,
-                user,
-                "User Data Found!",
-            ),
-        );
 });
 
 export {

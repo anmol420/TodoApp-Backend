@@ -33,11 +33,11 @@ const createTodo = asyncHandler(async (req, res) => {
                 )
             );
     } catch (error) {
-        throw new ApiError(500, "Internal Server Error");
+        throw new ApiError(500, error.message || "Internal Server Error");
     }
 });
 
-const toggleStatus = asyncHandler(async (req, res) => {
+const toggleComplete = asyncHandler(async (req, res) => {
     const { title } = req.body;
     const user = req.user;
     try {
@@ -69,5 +69,5 @@ const toggleStatus = asyncHandler(async (req, res) => {
 
 export {
     createTodo,
-    toggleStatus,
+    toggleComplete,
 };
