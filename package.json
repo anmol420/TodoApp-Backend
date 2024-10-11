@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "nodemon src/index.js"
+    "build": "rm -rf build && mkdir build && cp -r src/* build/",
+    "start": "node build/index.js"
   },
   "repository": {
     "type": "git",
