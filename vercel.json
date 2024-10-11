@@ -1,8 +1,9 @@
 {
-    "builds": [
+    "version": 2,
+    "rewrites": [
         {
-            "src": "src",
-            "public": "build"
+            "source": "/(.*)",
+            "destination": "/api"
         }
     ]
 }
