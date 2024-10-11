@@ -2,7 +2,7 @@
     "builds": [
         {
             "src": "src",
-            "output": "build"
+            "public": "build"
         }
     ]
 }
