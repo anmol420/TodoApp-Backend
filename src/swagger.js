@@ -8,8 +8,10 @@ const __dirname = path.dirname(__filename);
 
 const swaggerDocument = YAML.load(path.join(__dirname, '../docs/swagger.yaml'));
 
+const customCSS = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
+
 const setupSwagger = (app) => {
-    app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+    app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, { customCssUrl: customCSS }));
 };
 
 export default setupSwagger;
