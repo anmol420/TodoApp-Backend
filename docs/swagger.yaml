@@ -1,0 +1,17 @@
+openapi: 3.0.1
+info:
+  title: TodoApp API
+  description: TodoApp Backend API written in JavaScript
+  version: 1.0.0
+
+servers:
+  - url: https://todo-app-backend-azure-eight.vercel.app
+
+paths:
+  /api/v1/health-check:
+    get:
+      tags:
+        - Health Check
+      responses:
+        "200":
+          description: OK

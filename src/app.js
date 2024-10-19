@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { ROUTE_PATH } from "./constants.js";
+import setupSwagger from "./swagger.js";
 
 const app = express();
 
@@ -13,6 +14,8 @@ app.use(cors({
 app.use(express.json({
     limit: "16kb",
 }));
+
+setupSwagger(app);
 
 app.use(cookieParser());
 
