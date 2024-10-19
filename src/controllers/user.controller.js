@@ -23,7 +23,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
         const createdUser = await User.findOne(user._id).select("-password");
         if (!createdUser) {
-            throw new ApiError(500, "User Already Exits.");
+            throw new ApiError(400, "User Already Exits.");
         }
 
         return res
