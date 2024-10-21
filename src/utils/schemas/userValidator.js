@@ -17,8 +17,11 @@ const resetPasswordSchema = z.object({
     newPassword: z.string().min(5, { message: "Minimum Password Length Should Be 5 Characters." })
 });
 
-const updateUserDetailsSchema = z.object({
+const updateUserUsernameSchema = z.object({
     username: z.string().min(5, { message: "Minimum Username Length Should Be 5 Characters." }),
+});
+
+const updateUserEmailSchema = z.object({
     email: z.string().email({ message: "Invalid Email Format" }),
 });
 
@@ -26,5 +29,6 @@ export {
     registerSchema,
     logInSchema,
     resetPasswordSchema,
-    updateUserDetailsSchema,
+    updateUserUsernameSchema,
+    updateUserEmailSchema
 };

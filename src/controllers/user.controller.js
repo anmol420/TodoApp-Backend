@@ -179,24 +179,17 @@ const resetPassword = asyncHandler(async (req, res) => {
     }
 });
 
-const updateUserDetails = asyncHandler(async (req, res) => {
-    const { username, email } = req.body;
+
+const updateUserUsername = asyncHandler(async (req, res) => {
+    const { username } = req.body;
     const user = req.user;
 
-    const userFoundEmail = await User.findOne({
-        $or: [{email}]
-    });
-
     const userFoundUsername = await User.findOne({
-        $or: [{username}]
+        $or: [{ username }]
     });
 
-    if(userFoundUsername) {
+    if (userFoundUsername) {
         throw new ApiError(StatusCodes.CONFLICT, "Username Already Exists.");
-    }
-
-    if(userFoundEmail) {
-        throw new ApiError(StatusCodes.CONFLICT, "Email ID Already Exists.");
     }
 
     try {
@@ -205,7 +198,6 @@ const updateUserDetails = asyncHandler(async (req, res) => {
         }, {
             $set: {
                 username,
-                email
             },
         }, {
             new: true,
@@ -217,11 +209,48 @@ const updateUserDetails = asyncHandler(async (req, res) => {
                 new ApiResponse(
                     StatusCodes.CREATED,
                     userFound,
-                    "User Details Updated."
+                    "Username Updated."
                 ),
             );
     } catch (error) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Internal Server Error");
+        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, "Internal Server Error");
+    }
+});
+
+const updateUserEmail = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    const user = req.user;
+
+    const userFoundEmail = await User.findOne({
+        $or: [{ email }]
+    });
+
+    if (userFoundEmail) {
+        throw new ApiError(StatusCodes.CONFLICT, "Email ID Already Exists.");
+    }
+
+    try {
+        const userFound = await User.findByIdAndUpdate({
+            _id: user._id,
+        }, {
+            $set: {
+                email,
+            },
+        }, {
+            new: true,
+        }).select("-password");
+
+        return res
+            .status(StatusCodes.CREATED)
+            .json(
+                new ApiResponse(
+                    StatusCodes.CREATED,
+                    userFound,
+                    "Email Updated."
+                ),
+            );
+    } catch (error) {
+        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, "Internal Server Error");
     }
 });
 
@@ -231,5 +260,6 @@ export {
     logOutUser,
     dashboard,
     resetPassword,
-    updateUserDetails,
+    updateUserUsername,
+    updateUserEmail
 };
