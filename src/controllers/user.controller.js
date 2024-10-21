@@ -182,7 +182,23 @@ const resetPassword = asyncHandler(async (req, res) => {
 const updateUserDetails = asyncHandler(async (req, res) => {
     const { username, email } = req.body;
     const user = req.user;
-    // TODO: CHECK IF USERNAME OR EMAIL EXISTS
+
+    const userFoundEmail = await User.findOne({
+        $or: [{email}]
+    });
+
+    const userFoundUsername = await User.findOne({
+        $or: [{username}]
+    });
+
+    if(userFoundUsername) {
+        throw new ApiError(StatusCodes.CONFLICT, "Username Already Exists.");
+    }
+
+    if(userFoundEmail) {
+        throw new ApiError(StatusCodes.CONFLICT, "Email ID Already Exists.");
+    }
+
     try {
         const userFound = await User.findByIdAndUpdate({
             _id: user._id,

@@ -15,3 +15,33 @@ paths:
       responses:
         "200":
           description: OK
+        "500":
+          description: INTERNAL SERVER ERROR
+
+  /api/v1/user/register:
+    post:
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "anmol"
+                email:
+                  type: string
+                  example: "me@gmail.com"
+                password:
+                  type: string
+                  example: helloworld
+      responses:
+        "201":
+          description: CREATED
+        "400":
+          description: USER ALREADY EXISTS
+        "500":
+          description: INTERNAL SERVER ERROR
