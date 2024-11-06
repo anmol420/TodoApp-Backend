@@ -5,7 +5,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: https://todo-app-backend-azure-eight.vercel.app
+  - url: https://todoapp-backend-xn6h.onrender.com
 
 paths:
   /api/v1/health-check:
