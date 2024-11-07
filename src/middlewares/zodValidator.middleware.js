@@ -1,6 +1,5 @@
 import { z } from "zod";
 import ApiResponse from "../utils/ApiResponse.js";
-import { StatusCodes } from "http-status-codes";
 
 const validationSchema = (schema, source="body") => {
     function validate(req, res, next) {
@@ -11,8 +10,8 @@ const validationSchema = (schema, source="body") => {
             if (error instanceof z.ZodError) {
                 const zError = error.format();
                 return res
-                    .status(StatusCodes.NOT_FOUND)
-                    .json(new ApiResponse(StatusCodes.NOT_FOUND, { zError }, "Validation Error"));
+                    .status(404)
+                    .json(new ApiResponse(404, { zError }, "Validation Error"));
             }
         }
     }

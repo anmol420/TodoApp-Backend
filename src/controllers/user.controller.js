@@ -3,7 +3,6 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { COOKIE_OPTIONS } from "../constants.js";
-import { StatusCodes } from "http-status-codes";
 
 const registerUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
@@ -12,7 +11,7 @@ const registerUser = asyncHandler(async (req, res) => {
         $or: [{ username }, { email }],
     });
     if (existedUser) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, "User Already Exists");
+        throw new ApiError(400, "User Already Exists");
     }
 
     try {
@@ -23,16 +22,16 @@ const registerUser = asyncHandler(async (req, res) => {
         });
         const createdUser = await User.findOne(user._id).select("-password");
         return res
-            .status(StatusCodes.CREATED)
+            .status(201)
             .json(
                 new ApiResponse(
-                    StatusCodes.CREATED,
+                    201,
                     createdUser,
                     "User Created.",
                 ),
             );
     } catch (error) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Internal Server Error.");
+        throw new ApiError(500, error.message || "Internal Server Error.");
     }
 });
 
@@ -42,7 +41,7 @@ const generateToken = async (userId) => {
         const token = user.generateToken();
         return token;
     } catch (error) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, "Internal Server Error.");
+        throw new ApiError(500, "Internal Server Error.");
     }
 }
 
@@ -51,46 +50,46 @@ const logInUser = asyncHandler(async (req, res) => {
 
     const userFound = await User.findOne({ email });
     if (!userFound) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "User Not Found.");
+        throw new ApiError(404, "User Not Found.");
     }
 
     const passwordValid = await userFound.isPasswordCorrect(password);
     if (!passwordValid) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "Invalid Password.");
+        throw new ApiError(401, "Invalid Password.");
     }
 
     try {
         const token = await generateToken(userFound._id);
         const user = await User.findById(userFound._id).select("-password");
         return res
-            .status(StatusCodes.OK)
+            .status(202)
             .cookie("token", token, COOKIE_OPTIONS)
             .json(
                 new ApiResponse(
-                    StatusCodes.OK,
+                    202,
                     user,
                     "User Logged In.",
                 ),
             );
     } catch (error) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Internal Server Error.");
+        throw new ApiError(500, error.message || "Internal Server Error.");
     }
 });
 
 const logOutUser = asyncHandler(async (req, res) => {
     try {
         return res
-            .status(StatusCodes.OK)
+            .status(200)
             .clearCookie("token", COOKIE_OPTIONS)
             .json(
                 new ApiResponse(
-                    StatusCodes.OK,
+                    200,
                     {},
                     "User Logged Out."
                 ),
             );
     } catch (error) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Internal Server Error.");
+        throw new ApiError(500, error.message || "Internal Server Error.");
     }
 });
 
@@ -131,16 +130,16 @@ const dashboard = asyncHandler(async (req, res) => {
 
     try {
         return res
-            .status(StatusCodes.OK)
+            .status(200)
             .json(
                 new ApiResponse(
-                    StatusCodes.OK,
+                    200,
                     userData,
                     "User Data Found!",
                 ),
             );
     } catch (error) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Internal Server Error.");
+        throw new ApiError(500, error.message || "Internal Server Error.");
     }
 });
 
@@ -151,12 +150,12 @@ const resetPassword = asyncHandler(async (req, res) => {
         $or: [{ email }]
     });
     if (!userFound) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "User Not Found.");
+        throw new ApiError(404, "User Not Found.");
     }
 
     const isPasswordValid = await userFound.isPasswordCorrect(oldPassword);
     if (!isPasswordValid) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "Old Password Invalid.")
+        throw new ApiError(400, "Old Password Invalid.")
     }
 
     try {
@@ -166,16 +165,16 @@ const resetPassword = asyncHandler(async (req, res) => {
         });
 
         return res
-            .status(StatusCodes.CREATED)
+            .status(202)
             .json(
                 new ApiResponse(
-                    StatusCodes.CREATED,
+                    202,
                     {},
                     "Passsword Updated Successfully."
                 )
             );
     } catch (error) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message || "Internal Server Error");
+        throw new ApiError(500, error.message || "Internal Server Error");
     }
 });
 
@@ -189,7 +188,7 @@ const updateUserUsername = asyncHandler(async (req, res) => {
     });
 
     if (userFoundUsername) {
-        throw new ApiError(StatusCodes.CONFLICT, "Username Already Exists.");
+        throw new ApiError(400, "Username Already Exists.");
     }
 
     try {
@@ -204,16 +203,16 @@ const updateUserUsername = asyncHandler(async (req, res) => {
         }).select("-password");
 
         return res
-            .status(StatusCodes.CREATED)
+            .status(202)
             .json(
                 new ApiResponse(
-                    StatusCodes.CREATED,
+                    202,
                     userFound,
                     "Username Updated."
                 ),
             );
     } catch (error) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, "Internal Server Error");
+        throw new ApiError(500, "Internal Server Error");
     }
 });
 
@@ -226,7 +225,7 @@ const updateUserEmail = asyncHandler(async (req, res) => {
     });
 
     if (userFoundEmail) {
-        throw new ApiError(StatusCodes.CONFLICT, "Email ID Already Exists.");
+        throw new ApiError(400, "Email ID Already Exists.");
     }
 
     try {
@@ -241,16 +240,16 @@ const updateUserEmail = asyncHandler(async (req, res) => {
         }).select("-password");
 
         return res
-            .status(StatusCodes.CREATED)
+            .status(202)
             .json(
                 new ApiResponse(
-                    StatusCodes.CREATED,
+                    202,
                     userFound,
                     "Email Updated."
                 ),
             );
     } catch (error) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, "Internal Server Error");
+        throw new ApiError(500, "Internal Server Error");
     }
 });
 

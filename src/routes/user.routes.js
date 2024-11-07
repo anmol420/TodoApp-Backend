@@ -8,7 +8,7 @@ const router = Router();
 
 router.route("/register").post(validationSchema(registerSchema), registerUser);
 router.route("/login").post(validationSchema(logInSchema), logInUser);
-// router.route("/resetPassword").post(validationSchema(resetPasswordSchema), resetPassword);
+router.route("/resetPassword").post(validationSchema(resetPasswordSchema), resetPassword);  
 
 // protected route
 router.route("/logout").post(verifyJWT, logOutUser);
