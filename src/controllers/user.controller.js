@@ -7,6 +7,10 @@ import { COOKIE_OPTIONS } from "../constants.js";
 const registerUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
 
+    if (!username || !email || !password) {
+        throw new ApiError(404, "All Fields Are Required.");
+    }
+
     const existedUser = await User.findOne({
         $or: [{ username }, { email }],
     });
