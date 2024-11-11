@@ -1,3 +1,6 @@
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
 import { User } from "../models/user.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
@@ -39,44 +42,63 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 });
 
-const generateToken = async (userId) => {
+const generateToken = async (user) => {
     try {
-        const user = await User.findById(userId);
-        const token = user.generateToken();
+        const token = jwt.sign(
+            {
+                _id: user._id,
+            },
+            process.env.TOKEN_SECRET,
+            {
+                expiresIn: '7d',
+            },
+        );
         return token;
     } catch (error) {
-        throw new ApiError(500, "Internal Server Error.");
+        throw new ApiError(500, "Error In Generating Token.");
     }
+}
+
+const isPasswordCorrect = async function (password, user) {
+    return await bcrypt.compare(password, user.password);
 }
 
 const logInUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+        throw new ApiError(400, "All Fields Are Required.");
+    }
 
     const userFound = await User.findOne({ email });
     if (!userFound) {
         throw new ApiError(404, "User Not Found.");
     }
 
-    const passwordValid = await userFound.isPasswordCorrect(password);
-    if (!passwordValid) {
-        throw new ApiError(401, "Invalid Password.");
+    const passwordCorrect = await isPasswordCorrect(password, userFound);
+    if (!passwordCorrect) {
+        throw new ApiError(401, "Incorrect Password.");
+    }
+
+    const token = await generateToken(userFound);
+    if (!token) {
+        throw new ApiError(500, "Error In Generating Token.");
     }
 
     try {
-        const token = await generateToken(userFound._id);
         const user = await User.findById(userFound._id).select("-password");
         return res
-            .status(202)
+            .status(200)
             .cookie("token", token, COOKIE_OPTIONS)
             .json(
                 new ApiResponse(
-                    202,
+                    200,
                     user,
-                    "User Logged In.",
-                ),
+                    "Logged In."
+                )
             );
     } catch (error) {
-        throw new ApiError(500, error.message || "Internal Server Error.");
+        throw new ApiError(500, error.message);
     }
 });
 
@@ -147,40 +169,40 @@ const dashboard = asyncHandler(async (req, res) => {
     }
 });
 
-const resetPassword = asyncHandler(async (req, res) => {
-    const { email, oldPassword, newPassword } = req.body;
+// const resetPassword = asyncHandler(async (req, res) => {
+//     const { email, oldPassword, newPassword } = req.body;
 
-    const userFound = await User.findOne({
-        $or: [{ email }]
-    });
-    if (!userFound) {
-        throw new ApiError(404, "User Not Found.");
-    }
+//     const userFound = await User.findOne({
+//         $or: [{ email }]
+//     });
+//     if (!userFound) {
+//         throw new ApiError(404, "User Not Found.");
+//     }
 
-    const isPasswordValid = await userFound.isPasswordCorrect(oldPassword);
-    if (!isPasswordValid) {
-        throw new ApiError(400, "Old Password Invalid.")
-    }
+//     const isPasswordValid = await userFound.isPasswordCorrect(oldPassword);
+//     if (!isPasswordValid) {
+//         throw new ApiError(400, "Old Password Invalid.")
+//     }
 
-    try {
-        userFound.password = newPassword;
-        await userFound.save({
-            validateBeforeSave: false,
-        });
+//     try {
+//         userFound.password = newPassword;
+//         await userFound.save({
+//             validateBeforeSave: false,
+//         });
 
-        return res
-            .status(202)
-            .json(
-                new ApiResponse(
-                    202,
-                    {},
-                    "Passsword Updated Successfully."
-                )
-            );
-    } catch (error) {
-        throw new ApiError(500, error.message || "Internal Server Error");
-    }
-});
+//         return res
+//             .status(202)
+//             .json(
+//                 new ApiResponse(
+//                     202,
+//                     {},
+//                     "Passsword Updated Successfully."
+//                 )
+//             );
+//     } catch (error) {
+//         throw new ApiError(500, error.message || "Internal Server Error");
+//     }
+// });
 
 
 const updateUserUsername = asyncHandler(async (req, res) => {
@@ -262,7 +284,7 @@ export {
     logInUser,
     logOutUser,
     dashboard,
-    resetPassword,
+    // resetPassword,
     updateUserUsername,
     updateUserEmail
 };

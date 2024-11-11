@@ -31,7 +31,7 @@ paths:
               properties:
                 username:
                   type: string
-                  example: "anmol"
+                  example: "testMe"
                 email:
                   type: string
                   example: "me@gmail.com"
@@ -41,7 +41,38 @@ paths:
       responses:
         "201":
           description: CREATED
+        "404":
+          description: FIELDS ARE MISSING
         "400":
-          description: USER ALREADY EXISTS
+          description: USER ALREADY EXIST
         "500":
           description: INTERNAL SERVER ERROR
+  
+  /api/v1/user/login:
+    post:
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "me@gmail.com"
+                password:
+                  type: string
+                  example: helloworld
+      responses:
+        "200":
+          description: LOGGED IN
+        "404":
+          description: USER NOT FOUND
+        "400":
+          description: FIELDS ARE MISSING
+        "401":
+          description: INCORRECT PASSWORD
+        "500":
+          description: INTERNAL SERVER ERROR / TOKEN GENERATION FAILED
