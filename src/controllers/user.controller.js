@@ -151,7 +151,7 @@ const dashboard = asyncHandler(async (req, res) => {
     ]);
 
     if (!userData?.length) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "Not Found.");
+        throw new ApiError(404, "Not Found.");
     }
 
     try {
@@ -169,41 +169,44 @@ const dashboard = asyncHandler(async (req, res) => {
     }
 });
 
-// const resetPassword = asyncHandler(async (req, res) => {
-//     const { email, oldPassword, newPassword } = req.body;
+const resetPassword = asyncHandler(async (req, res) => {
+    const { email, oldPassword, newPassword } = req.body;
 
-//     const userFound = await User.findOne({
-//         $or: [{ email }]
-//     });
-//     if (!userFound) {
-//         throw new ApiError(404, "User Not Found.");
-//     }
+    const userFound = await User.findOne({
+        $or: [{ email }]
+    });
+    if (!userFound) {
+        throw new ApiError(404, "User Not Found.");
+    }
 
-//     const isPasswordValid = await userFound.isPasswordCorrect(oldPassword);
-//     if (!isPasswordValid) {
-//         throw new ApiError(400, "Old Password Invalid.")
-//     }
+    const passwordCorrect = await isPasswordCorrect(oldPassword, userFound);
+    if (!passwordCorrect) {
+        throw new ApiError(401, "Old Password Invalid.")
+    }
 
-//     try {
-//         userFound.password = newPassword;
-//         await userFound.save({
-//             validateBeforeSave: false,
-//         });
+    if (oldPassword === newPassword) {
+        throw new ApiError(400, "Old and New Password is Same.")
+    }
 
-//         return res
-//             .status(202)
-//             .json(
-//                 new ApiResponse(
-//                     202,
-//                     {},
-//                     "Passsword Updated Successfully."
-//                 )
-//             );
-//     } catch (error) {
-//         throw new ApiError(500, error.message || "Internal Server Error");
-//     }
-// });
+    try {
+        userFound.password = newPassword;
+        await userFound.save({
+            validateBeforeSave: false,
+        });
 
+        return res
+            .status(202)
+            .json(
+                new ApiResponse(
+                    202,
+                    {},
+                    "Passsword Updated Successfully."
+                )
+            );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Internal Server Error");
+    }
+});
 
 const updateUserUsername = asyncHandler(async (req, res) => {
     const { username } = req.body;
@@ -284,7 +287,7 @@ export {
     logInUser,
     logOutUser,
     dashboard,
-    // resetPassword,
+    resetPassword,
     updateUserUsername,
     updateUserEmail
 };
