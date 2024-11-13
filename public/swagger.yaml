@@ -31,10 +31,10 @@ paths:
               properties:
                 username:
                   type: string
-                  example: "testMe"
+                  example: testMe
                 email:
                   type: string
-                  example: "me@gmail.com"
+                  example: me@gmail.com
                 password:
                   type: string
                   example: helloworld
@@ -61,7 +61,7 @@ paths:
               properties:
                 email:
                   type: string
-                  example: "me@gmail.com"
+                  example: me@gmail.com
                 password:
                   type: string
                   example: helloworld
@@ -76,3 +76,101 @@ paths:
           description: INCORRECT PASSWORD
         "500":
           description: INTERNAL SERVER ERROR / TOKEN GENERATION FAILED
+  
+  /api/v1/user/logout:
+    post:
+      tags:
+        - Users
+      responses:
+        "200":
+          description: LOGGED OUT
+        "500":
+          description: INTERNAL SERVER ERROR
+  
+  /api/v1/user/dashboard:
+    get:
+      tags:
+        - Users
+      responses:
+        "200":
+          description: DASHBOARD FETCHED
+        "404":
+          description: USER NOT FOUND
+        "500":
+          description: INTERNAL SERVER ERROR / TOKEN GENERATION FAILED
+  
+  /api/v1/user/resetPassword:
+    patch:
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: me@gmail.com
+                oldPassword:
+                  type: string
+                  example: helloworld
+                newPassword:
+                  type: string
+                  example: hello_world
+      responses:
+        "202":
+          description: PASSWORD RESET SUCCESSFULL
+        "404":
+          description: USER NOT FOUND
+        "400":
+          description: BOTH PASSWORDS ARE SAME
+        "401":
+          description: INCORRECT PASSWORD
+        "500":
+          description: INTERNAL SERVER ERROR
+  
+  /api/v1/user/updateUserUsername:
+    patch:
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: me_hello
+      responses:
+        "202":
+          description: USERNAME RESET SUCCESSFULL
+        "400":
+          description: USERNAME ALREADY EXISTS
+        "500":
+          description: INTERNAL SERVER ERROR
+  
+  /api/v1/user/updateUserEmail:
+    patch:
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: me.hello@gmail.com
+      responses:
+        "202":
+          description: EMAIL ID RESET SUCCESSFULL
+        "400":
+          description: EMAIL ID ALREADY EXISTS
+        "500":
+          description: INTERNAL SERVER ERROR
